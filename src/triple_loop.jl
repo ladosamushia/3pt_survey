@@ -8,7 +8,7 @@ include("binning.jl")
 include("geometry.jl")
 
 """
-    all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np, hist)
+    all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np)
 
     # Input
     - xyz::Array{Float, 2}: x, y, z coordinates of the first point (3xN).
