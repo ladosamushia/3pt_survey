@@ -26,7 +26,7 @@ function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, Np, Np)
     xyz_tree = KDTree(xyz)
     # First galaxy
-    for i1 in size(xyz)[2]
+    for i1 in 1:size(xyz)[2]
         idxs2 = inrange(xyz_tree, xyz[:,i1], rmax)
         for i2 in idxs2
             # Ignore neighbours that are before the first point (don't double count)
@@ -44,8 +44,7 @@ function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
                 indexes = histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np, logr=logr, logp=logp)
                 if nothing in indexes continue end
                 ir12, ir23, ir31, ip12, ip23 = indexes
-                println(indexes)
-                hist[ir12, ir23, ir31, ip12, ip23] += w[:,i1]*w[:,i2]*w[:,i3]
+                hist[ir12, ir23, ir31, ip12, ip23] += w[i1]*w[i2]*w[i3]
             end
         end
     end
