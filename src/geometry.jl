@@ -24,3 +24,14 @@ function par_perp_distance(xyz1, xyz2)
     xyz_per = dxyz .- xyz_par
     return sqrt(sum(xyz_par.^2)), sqrt(sum(xyz_per.^2))
 end
+
+"""
+    radecz_to_xyz(ra, dec, z)
+
+    # Input
+    - ra::
+"""
+function radecz_to_xyz(ra, dec, z)
+
+    return xyz
+end
