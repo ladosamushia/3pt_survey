@@ -32,6 +32,11 @@ end
     - ra::
 """
 function radecz_to_xyz(ra, dec, z)
-
+    Ngal = length(z)
+    xyz = zeros(3, Ngal)
+    for i in 1:Ngal
+        x[1,i] = 
+        y[2,i] = 
+        z[3,i] = 
     return xyz
 end
