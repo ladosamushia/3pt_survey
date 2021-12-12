@@ -24,3 +24,15 @@ ind = bin(0.01, 0.1, 20, 20, logscale=true)
 @test isnothing(ind)
 ind = bin(3.1, 1, 10, 11, logscale=false)
 @test ind == 3
+
+hist = ones(10,10,10,5,5)
+hist_red = fold_histogram(hist)
+for i in 1:size(hist_red)[2]
+    if hist_red[1,i] == hist_red[2,i] == hist_red[3,i]
+        @test hist_red[6,i] == 1
+    elseif hist_red[1,i] == hist_red[2,i] || hist_red[2,i] == hist_red[3,i] || hist_red[3,i] == hist_red[1,i]
+        @test hist_red[6,i] == 3
+    else
+        @test hist_red[6,i] == 6
+    end
+end
