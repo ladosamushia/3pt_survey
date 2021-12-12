@@ -26,10 +26,10 @@ dpar, dper = par_perp_distance(xyz1, xyz2)
 @test dpar == 0
 @test dper == 10
 
-ra = [0, 2*π*0.136, 2*π*0.84]
-dec = [0, π/2, π/3]
+ra = [0, π/3, π/4]
+dec = [0, π/4, π/3]
 z = [1, 0.5, 1.5]
 xyz = radecz_to_xyz(ra, dec, z)
-@test xyz[1,:] .≊ [3433.4, 0, 0]
-@test xyz[2,:] .≊ []
-@test xyz[3,:] .≊ []
+@test isapprox(xyz[:,1], [3405.3, 0, 0], rtol=0.001)
+@test isapprox(xyz[:,2], [1953.2/sqrt(2)/2, 1953.2/sqrt(2)*sqrt(3)/2, 1953.2/sqrt(2)], rtol=0.001)
+@test isapprox(xyz[:,3], [4488.1/2/sqrt(2), 4488.1/2/sqrt(2), 4488.1*sqrt(3)/2], rtol=0.001)
