@@ -63,3 +63,43 @@ function bin(r, rmin, rmax, Nbin; logscale)
         return ceil(Int, (r - rmin)/dr)
     end
 end
+
+"""
+    fold_histogram(hist)
+
+    # Input
+    - hist::Array{Float, 5}: A histogram of triplet counts for r12, r23, r31
+
+    # Output
+    - hist_red::Array{Float, 6}: A reduced histogram where different permutations of r12, r23, r31 
+      are combined. Has 4 columns. First 5 for bin indexes (r12, r23, r31, π1, π2), the 6th for the total count.
+
+    The condition imposed on the bins is r12 < r23 < r31.
+"""
+function fold_histogram(hist)
+    Nrp = size(hist)[1]
+    Nπ = size(hist)[4]
+    Ntot = floor(Int, Nrp/6*(Nrp^2 + 3*Nrp + 2))*Nπ*Nπ
+    hist_red = zeros(6, Ntot)
+    count = 1
+    for i in 1:Nrp, j in i:Nrp, k in j:Nrp, l in 1:Nπ, m in 1:Nπ
+        hist_red[1,count] = i
+        hist_red[2,count] = j
+        hist_red[3,count] = k
+        hist_red[4,count] = l
+        hist_red[5,count] = m
+        if i == j == k
+            hist_red[6,count] = hist[i,j,k,l,m]
+        elseif i == j
+            hist_red[6,count] = hist[i,j,k,l,m] + hist[i,k,j,l,m] + hist[k,i,j,l,m]
+        elseif j == k
+            hist_red[6,count] = hist[i,j,k,l,m] + hist[k,i,j,l,m] + hist[k,j,i,l,m]
+        elseif k == i
+            hist_red[6,count] = hist[i,j,k,l,m] + hist[i,k,j,l,m] + hist[j,i,k,l,m]
+        else
+            hist_red[6,count] = hist[i,j,k,l,m] + hist[i,k,j,l,m] + hist[j,i,k,l,m] + hist[j,k,i,l,m] + hist[k,i,j,l,m] + hist[k,j,i,l,m]
+        end
+        count += 1
+    end
+    return hist_red
+end
