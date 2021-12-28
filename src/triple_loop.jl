@@ -26,7 +26,7 @@ function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, Np, Np)
     xyz_tree = KDTree(xyz)
     # First galaxy
-    for i1 in 1:size(xyz)[2]
+    Threads.@threads for i1 in 1:size(xyz)[2]
         idxs2 = inrange(xyz_tree, xyz[:,i1], rmax)
         for i2 in idxs2
             # Ignore neighbours that are before the first point (don't double count)
