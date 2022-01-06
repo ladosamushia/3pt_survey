@@ -29,7 +29,7 @@ include("geometry.jl")
 function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     xyz_tree = KDTree(xyz)
-    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 10 # a small buffer just in case
+    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 1 # a small buffer just in case
     # First galaxy
     for i1 in 1:size(xyz)[2]
         idxs2 = inrange(xyz_tree, xyz[:,i1], Rmax)
@@ -83,7 +83,7 @@ function all_triplets(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     xyz1_tree = KDTree(xyz1)
     xyz2_tree = KDTree(xyz1)
-    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 10 # small offset just in case
+    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 1 # small offset just in case
     # First galaxy
     for i1 in 1:size(xyz1)[2]
         idxs2 = inrange(xyz1_tree, xyz1[:,i1], Rmax)
