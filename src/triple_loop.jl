@@ -8,7 +8,7 @@ include("binning.jl")
 include("geometry.jl")
 
 """
-    all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np)
+    all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
 
     # Input
     - xyz::Array{Float, 2}: x, y, z coordinates of the first point (3xN).
@@ -18,9 +18,13 @@ include("geometry.jl")
     - Nbin::Int: number of bins
     - dp::Float: line-of-sight bin width
     - Np::Flaot: Number of line-of-sight bins
-
+    - logr::Bool: Is the r binning logarithmic?
+    - logp::Bool: Is the pi binning logarithmic?
     # Output
     - hist::Array{Float, 5}: the weighted histogram of triplets.
+    
+    logr, logp get passed to histogram function.
+    Only for self-triplets.
 """
 function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, Np, Np)
@@ -50,3 +54,58 @@ function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
     end
     return hist
 end
+
+
+"""
+    all_mixed_triplets(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Np, logr, logp)
+
+    # Input
+    - xyz1::Array{Float, 2}: x, y, z coordinates of the first point (3xN) from the first set.
+    - xyz2::Array{Float, 2}: x, y, z coordinates of the second point (3xN) from the second set.
+    - w1::Array{Float, 1}: weights for each point from the first set.
+    - w2::Array{Float, 1}: weights for each point from the second set.
+    - rmin::Float: minimum distance for binning
+    - rmax::Float: maximum distance for binning
+    - Nbin::Int: number of bins
+    - dp::Float: line-of-sight bin width
+    - Np::Float: Number of line-of-sight bins
+    - logr::Bool: Is the r binning logarithmic?
+    - logp::Bool: Is the pi binning logarithmic?
+    # Output
+    - hist::Array{Float, 5}: the weighted histogram of triplets.
+
+    logr, logp are passed to histogram.
+    This is for mixed triplets where xyz1/w1 are used twice and xyz2/w2 is used
+    ones (e.g. for DDR counts, D=1, R=2).
+"""
+function all_triplets(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Np; logr, logp)
+    hist = zeros(Nbin, Nbin, Nbin, Np, Np)
+    xyz1_tree = KDTree(xyz1)
+    xyz2_tree = KDTree(xyz1)
+    # First galaxy
+    for i1 in 1:size(xyz1)[2]
+        idxs2 = inrange(xyz1_tree, xyz1[:,i1], rmax)
+        for i2 in idxs2
+            # Ignore neighbours that are before the first point (don't double count)
+            if i2 < i1 continue end
+            # For each second neighbour look for all third neighbours from the second set
+            idxs32 = inrange(xyz2_tree, xyz1[:,i2], rmax)
+            idxs31 = inrange(xyz2_tree, xyz1[:,i1], rmax)
+	    # Only points that are correct distance from the both
+	    idxs3 = union(idxs32, idxs31)
+            for i3 in idxs3
+                # histogram here
+                p12, r12 = par_perp_distance(xyz1[:,i1], xyz1[:,i2])
+                p23, r23 = par_perp_distance(xyz1[:,i2], xyz2[:,i3])
+                _, r31 = par_perp_distance(xyz2[:,i3], xyz1[:,i1])
+                indexes = histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np, logr=logr, logp=logp)
+                if nothing in indexes continue end
+                ir12, ir23, ir31, ip12, ip23 = indexes
+                hist[ir12, ir23, ir31, ip12, ip23] += w1[i1]*w1[i2]*w2[i3]
+            end
+        end
+    end
+    return hist
+end
+
+
