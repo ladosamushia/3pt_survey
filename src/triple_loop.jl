@@ -27,7 +27,7 @@ include("geometry.jl")
     Only for self-triplets.
 """
 function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
-    hist = zeros(Nbin, Nbin, Nbin, Np, Np)
+    hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     xyz_tree = KDTree(xyz)
     Rmax = sqrt(rmax^2 + (dp*Np)^2) + 0.1 # a small buffer just in case
     # First galaxy
@@ -80,7 +80,7 @@ end
     ones (e.g. for DDR counts, D=1, R=2).
 """
 function all_triplets(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Np; logr, logp)
-    hist = zeros(Nbin, Nbin, Nbin, Np, Np)
+    hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     xyz1_tree = KDTree(xyz1)
     xyz2_tree = KDTree(xyz1)
     Rmax = sqrt(rmax^2 + (dp*Np)^2) + 0.1 # small offset just in case
@@ -131,7 +131,7 @@ end
     The same as all_triplets but uses the slow but exact triple loop.
 """
 function all_triplets_direct(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
-    hist = zeros(Nbin, Nbin, Nbin, Np, Np)
+    hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     Ngal = size(xyz)[2]
     # First galaxy
     for i1 in 1:Ngal
@@ -177,7 +177,7 @@ end
     Uses the slow explicit triple loop. Only for testing purposes.
 """
 function all_triplets_direct(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Nd; logr, logp)
-    hist = zeros(Nbin, Nbin, Nbin, Np, Np)
+    hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     Ngal1 = size(xyz1)[2]
     Ngal2 = size(xyz2)[2]
     # First galaxy

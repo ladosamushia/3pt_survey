@@ -4,7 +4,7 @@
 
 
 """
-    histogram(r12, r23, r31, p12, p23, hist, rmin, rmax, Nbin, dp, Np)
+    histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np; logr, logp)
 
     # Input
     - r12::Float: distance between points 1 and 2
@@ -24,14 +24,14 @@
     - i1, i2, i3, i4, i5::Int: bin indexes
 
     The first three are binned in equally spaced log-bings.
-    The last two in equally spaced linear bins (ignoring the sign).
+    The last two in equally spaced linear bins. 2*Np bins between -Np*dp and +Np*dp.
 """
 function histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np; logr, logp)
     i1 = bin(r12, rmin, rmax, Nbin, logscale=logr)
     i2 = bin(r23, rmin, rmax, Nbin, logscale=logr)
     i3 = bin(r31, rmin, rmax, Nbin, logscale=logr)
-    i4 = bin(p12, 0, dp*Np, Np, logscale=logp)
-    i5 = bin(p23, 0, dp*Np, Np, logscale=logp)
+    i4 = bin(p12, -dp*Np, dp*Np, 2*Np, logscale=logp)
+    i5 = bin(p23, -dp*Np, dp*Np, 2*Np, logscale=logp)
     return i1, i2, i3, i4, i5
 end
 
@@ -51,7 +51,7 @@ end
     Return nothing if out of the range.
 """
 function bin(r, rmin, rmax, Nbin; logscale)
-    r = abs(r)
+    if logscale r = abs(r) end
     if rmin > r || r > rmax
         return nothing
     end
