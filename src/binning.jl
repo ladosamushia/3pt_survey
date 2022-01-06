@@ -32,6 +32,21 @@ function histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np; logr, logp
     i3 = bin(r31, rmin, rmax, Nbin, logscale=logr)
     i4 = bin(p12, -dp*Np, dp*Np, 2*Np, logscale=logp)
     i5 = bin(p23, -dp*Np, dp*Np, 2*Np, logscale=logp)
+    i6 = bin(- p12 - p23, -dp*Np, dp*Np, 2*Np, logscale=logp)
+    if nothing in (i1, i2, i3, i4, i5, i6) return nothing end
+    # Sorting algorithm from Stackexchange
+    if i1 > i2
+        i1, i2 = i2, i1
+	i4, i5 = i5, i4
+    end
+    if i2 > i3
+        i2, i3 = i3, i2
+	i5, i6 = i6, i5
+    end
+    if i1 > i2
+        i1, i2 = i2, i1
+	i4, i5 = i5, i4
+    end
     return i1, i2, i3, i4, i5
 end
 

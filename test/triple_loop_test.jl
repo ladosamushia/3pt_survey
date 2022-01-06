@@ -18,16 +18,17 @@ hist_direct = all_triplets_direct(xyz, w, rmin, rmax, Nbin, dp, Np; logr=true, l
 # in the triple does not have to be the same
 hist_f = fold_histogram(hist)
 hist_f_direct = fold_histogram(hist_direct)
-#@test isapprox(hist_f, hist_f_direct, rtol=1e-4)
-for i in 1:size(hist_f)[2]
-    if !isapprox(hist_f[:,i], hist_f_direct[:,i], rtol=1e-4)
-        println(hist_f[:,i], " ", hist_f_direct[:,i])
-    end
-end
+@test isapprox(hist_f[6,:], hist_f_direct[6,:], rtol=1e-4)
+#for i in 1:size(hist_f)[2]
+#    if !isapprox(hist_f[:,i], hist_f_direct[:,i], rtol=1e-4)
+#        println(hist_f[:,i], " ", hist_f_direct[:,i])
+#    end
+#end
+
 xyz2 = rand(3, Ngal)*L
 w2 = rand(1, Ngal)*L
 hist = all_triplets(xyz, xyz2, w, w2, rmin, rmax, Nbin, dp, Np; logr=true, logp=false)
 hist_direct = all_triplets_direct(xyz, xyz2, w, w2, rmin, rmax, Nbin, dp, Np; logr=true, logp=false)
 hist_f = fold_histogram(hist)
 hist_f_direct = fold_histogram(hist_direct)
-#@test isapprox(hist_f, hist_f_direct, rtol=1e-4)
+@test isapprox(hist_f[6,:], hist_f_direct[6,:], rtol=1e-4)

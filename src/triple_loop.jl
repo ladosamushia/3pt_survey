@@ -29,7 +29,7 @@ include("geometry.jl")
 function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     xyz_tree = KDTree(xyz)
-    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 0.1 # a small buffer just in case
+    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 10 # a small buffer just in case
     # First galaxy
     for i1 in 1:size(xyz)[2]
         idxs2 = inrange(xyz_tree, xyz[:,i1], Rmax)
@@ -45,9 +45,9 @@ function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
                 # histogram here
                 p12, r12 = par_perp_distance(xyz[:,i1], xyz[:,i2])
                 p23, r23 = par_perp_distance(xyz[:,i2], xyz[:,i3])
-                _, r31 = par_perp_distance(xyz[:,i3], xyz[:,i1])
+                p31, r31 = par_perp_distance(xyz[:,i3], xyz[:,i1])
                 indexes = histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np, logr=logr, logp=logp)
-                if nothing in indexes continue end
+		if indexes == nothing continue end
                 ir12, ir23, ir31, ip12, ip23 = indexes
                 hist[ir12, ir23, ir31, ip12, ip23] += w[i1]*w[i2]*w[i3]
             end
@@ -83,7 +83,7 @@ function all_triplets(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, 2*Np, 2*Np)
     xyz1_tree = KDTree(xyz1)
     xyz2_tree = KDTree(xyz1)
-    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 0.1 # small offset just in case
+    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 10 # small offset just in case
     # First galaxy
     for i1 in 1:size(xyz1)[2]
         idxs2 = inrange(xyz1_tree, xyz1[:,i1], Rmax)
@@ -99,9 +99,9 @@ function all_triplets(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Np; logr, logp)
                 # histogram here
                 p12, r12 = par_perp_distance(xyz1[:,i1], xyz1[:,i2])
                 p23, r23 = par_perp_distance(xyz1[:,i2], xyz2[:,i3])
-                _, r31 = par_perp_distance(xyz2[:,i3], xyz1[:,i1])
+                p31, r31 = par_perp_distance(xyz2[:,i3], xyz1[:,i1])
                 indexes = histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np, logr=logr, logp=logp)
-                if nothing in indexes continue end
+                if indexes == nothing continue end
                 ir12, ir23, ir31, ip12, ip23 = indexes
                 hist[ir12, ir23, ir31, ip12, ip23] += w1[i1]*w1[i2]*w2[i3]
             end
@@ -142,9 +142,9 @@ function all_triplets_direct(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
                 # histogram here
                 p12, r12 = par_perp_distance(xyz[:,i1], xyz[:,i2])
                 p23, r23 = par_perp_distance(xyz[:,i2], xyz[:,i3])
-                _, r31 = par_perp_distance(xyz[:,i3], xyz[:,i1])
+                p31, r31 = par_perp_distance(xyz[:,i3], xyz[:,i1])
                 indexes = histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np, logr=logr, logp=logp)
-                if nothing in indexes continue end
+                if indexes == nothing continue end
                 ir12, ir23, ir31, ip12, ip23 = indexes
                 hist[ir12, ir23, ir31, ip12, ip23] += w[i1]*w[i2]*w[i3]
             end
@@ -189,9 +189,9 @@ function all_triplets_direct(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Nd; logr,
                 # histogram here
                 p12, r12 = par_perp_distance(xyz1[:,i1], xyz1[:,i2])
                 p23, r23 = par_perp_distance(xyz1[:,i2], xyz2[:,i3])
-                _, r31 = par_perp_distance(xyz2[:,i3], xyz1[:,i1])
+                p31, r31 = par_perp_distance(xyz2[:,i3], xyz1[:,i1])
                 indexes = histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np, logr=logr, logp=logp)
-                if nothing in indexes continue end
+                if indexes == nothing continue end
                 ir12, ir23, ir31, ip12, ip23 = indexes
                 hist[ir12, ir23, ir31, ip12, ip23] += w1[i1]*w1[i2]*w2[i3]
             end
