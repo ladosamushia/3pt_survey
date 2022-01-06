@@ -1,5 +1,5 @@
 #
-#
+# logp has to be false in this version.
 #
 
 using NearestNeighbors
@@ -29,14 +29,15 @@ include("geometry.jl")
 function all_triplets(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
     hist = zeros(Nbin, Nbin, Nbin, Np, Np)
     xyz_tree = KDTree(xyz)
+    Rmax = sqrt(rmax^2 + (dp*Np)^2) + 10
     # First galaxy
     for i1 in 1:size(xyz)[2]
-        idxs2 = inrange(xyz_tree, xyz[:,i1], rmax)
+        idxs2 = inrange(xyz_tree, xyz[:,i1], Rmax)
         for i2 in idxs2
             # Ignore neighbours that are before the first point (don't double count)
             if i2 < i1 continue end
             # For each second neighbour look for all third neighbours
-            idxs3 = inrange(xyz_tree, xyz[:,i2], rmax)
+            idxs3 = inrange(xyz_tree, xyz[:,i2], Rmax)
             for i3 in idxs3
                 # Ignore neighbours that are before the second point (don't double count)
                 # Ignore the ones that are also not in range of the first point
@@ -136,7 +137,7 @@ function all_triplets_direct(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
 	# Second galaxy but don't double count
         for i2 in i1:Ngal
 	    # Third galaxy but don't double count
-	    for i3 in 1:Ngal
+	    for i3 in i2:Ngal
                 # histogram here
                 p12, r12 = par_perp_distance(xyz[:,i1], xyz[:,i2])
                 p23, r23 = par_perp_distance(xyz[:,i2], xyz[:,i3])
