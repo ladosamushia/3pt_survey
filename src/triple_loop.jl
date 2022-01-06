@@ -108,4 +108,46 @@ function all_triplets(xyz1, xyz2, w1, w2, rmin, rmax, Nbin, dp, Np; logr, logp)
     return hist
 end
 
+"""
+    all_triplets_direct(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
+
+    # Input
+    - xyz::Array{Float, 2}: x, y, z coordinates of the first point (3xN).
+    - w::Array{Float, 1}: weights for each point.
+    - rmin::Float: minimum distance for binning
+    - rmax::Float: maximum distance for binning
+    - Nbin::Int: number of bins
+    - dp::Float: line-of-sight bin width
+    - Np::Flaot: Number of line-of-sight bins
+    - logr::Bool: Is the r binning logarithmic?
+    - logp::Bool: Is the pi binning logarithmic?
+    # Output
+    - hist::Array{Float, 5}: the weighted histogram of triplets.
+    
+    logr, logp get passed to histogram function.
+    Only for self-triplets.
+    The same as all_triplets but uses the slow but exact triple loop.
+"""
+function all_triplets_direct(xyz, w, rmin, rmax, Nbin, dp, Np; logr, logp)
+    hist = zeros(Nbin, Nbin, Nbin, Np, Np)
+    Ngal = size(xyz)[2]
+    # First galaxy
+    for i1 in 1:Ngal
+	# Second galaxy but don't double count
+        for i2 in i1:Ngal
+	    # Third galaxy but don't double count
+	    for i3 in 1:Ngal
+                # histogram here
+                p12, r12 = par_perp_distance(xyz[:,i1], xyz[:,i2])
+                p23, r23 = par_perp_distance(xyz[:,i2], xyz[:,i3])
+                _, r31 = par_perp_distance(xyz[:,i3], xyz[:,i1])
+                indexes = histogram(r12, r23, r31, p12, p23, rmin, rmax, Nbin, dp, Np, logr=logr, logp=logp)
+                if nothing in indexes continue end
+                ir12, ir23, ir31, ip12, ip23 = indexes
+                hist[ir12, ir23, ir31, ip12, ip23] += w[i1]*w[i2]*w[i3]
+            end
+        end
+    end
+    return hist
+end
 
